@@ -41,7 +41,7 @@ const GAS = 450000
 // -- SETUP ERC20 CONTRACT & TOKEN -- //
 
 const ERC20_CONTRACT = new web3.eth.Contract(IERC20.abi, ERC20_ADDRESS)
-const WETH_CONTRACT = new web3.eth.Contract(IERC20.abi, WETH[chainId].address)
+const WETH_CONTRACT = new web3.eth.Contract(IERC20.abi, process.env.ARB_FOR)
 
 // -- MAIN SCRIPT -- //
 
@@ -49,7 +49,7 @@ const main = async () => {
     const accounts = await web3.eth.getAccounts()
     const account = accounts[1] // This will be the account to recieve WETH after we perform the swap to manipulate price
 
-    const pairContract = await getPairContract(V2_FACTORY_TO_USE, ERC20_ADDRESS, WETH[chainId].address)
+    const pairContract = await getPairContract(V2_FACTORY_TO_USE, ERC20_ADDRESS, process.env.ARB_FOR)
     const token = new Token(
         ChainId.MAINNET,
         ERC20_ADDRESS,
@@ -90,10 +90,10 @@ async function manipulatePrice(token, account) {
     console.log(`Output Token: ${WETH[chainId].symbol}\n`)
 
     const amountIn = new web3.utils.BN(
-        web3.utils.toWei(AMOUNT, 'ether')
+        web3.utils.toWei(AMOUNT, 'mwei')
     )
 
-    const path = [token.address, WETH[chainId].address]
+    const path = [token.address, process.env.ARB_FOR]
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes
 
     await ERC20_CONTRACT.methods.approve(V2_ROUTER_TO_USE._address, amountIn).send({ from: UNLOCKED_ACCOUNT })

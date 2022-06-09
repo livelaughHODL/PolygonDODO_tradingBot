@@ -10,7 +10,7 @@ const { uFactory, uRouter, sFactory, sRouter, web3, arbitrage } = require('./hel
 // -- .ENV VALUES HERE -- //
 
 const arbFor = process.env.ARB_FOR // This is the address of token we are attempting to arbitrage (WETH)
-const arbAgainst = process.env.ARB_AGAINST // SHIB
+const arbAgainst = process.env.ARB_AGAINST // USDC
 const account = process.env.ACCOUNT // Account to recieve profit
 const units = process.env.UNITS // Used for price display/reporting
 const difference = process.env.PRICE_DIFFERENCE
@@ -138,7 +138,7 @@ const determineProfitability = async (_routerPath, _token0Contract, _token0, _to
     console.log(`Determining Profitability...\n`)
 
     // This is where you can customize your conditions on whether a profitable trade is possible.
-    // This is a basic example of trading WETH/SHIB...
+    // This is a basic example of trading WETH/USDC...
 
     let reserves, exchangeToBuy, exchangeToSell
 
@@ -153,7 +153,7 @@ const determineProfitability = async (_routerPath, _token0Contract, _token0, _to
     }
 
     console.log(`Reserves on ${_routerPath[1]._address}`)
-    console.log(`SHIB: ${Number(web3.utils.fromWei(reserves[0].toString(), 'ether')).toFixed(0)}`)
+    console.log(`USDC: ${Number(web3.utils.fromWei(reserves[0].toString(), 'ether')).toFixed(0)}`)
     console.log(`WETH: ${web3.utils.fromWei(reserves[1].toString(), 'ether')}\n`)
 
     try {
@@ -162,12 +162,12 @@ const determineProfitability = async (_routerPath, _token0Contract, _token0, _to
         let result = await _routerPath[0].methods.getAmountsIn(reserves[0], [_token0.address, _token1.address]).call()
 
         const token0In = result[0] // WETH
-        const token1In = result[1] // SHIB
+        const token1In = result[1] // USDC
 
         result = await _routerPath[1].methods.getAmountsOut(token1In, [_token1.address, _token0.address]).call()
 
-        console.log(`Estimated amount of WETH needed to buy enough Shib on ${exchangeToBuy}\t\t| ${web3.utils.fromWei(token0In, 'ether')}`)
-        console.log(`Estimated amount of WETH returned after swapping SHIB on ${exchangeToSell}\t| ${web3.utils.fromWei(result[1], 'ether')}\n`)
+        console.log(`Estimated amount of WETH needed to buy enough USDC on ${exchangeToBuy}\t\t| ${web3.utils.fromWei(token0In, 'ether')}`)
+        console.log(`Estimated amount of WETH returned after swapping USDC on ${exchangeToSell}\t| ${web3.utils.fromWei(result[1], 'ether')}\n`)
 
         const { amountIn, amountOut } = await getEstimatedReturn(token0In, _routerPath, _token0, _token1)
 

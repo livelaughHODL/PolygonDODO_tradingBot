@@ -56,7 +56,7 @@ async function getReserves(_pairContract) {
 
 async function calculatePrice(_pairContract) {
     const [reserve0, reserve1] = await getReserves(_pairContract)
-    return Big(reserve0).div(Big(reserve1)).toString()
+    return Big(Number(`${reserve0}000000000000`)).div(Big(reserve1)).toString()
 }
 
 function calculateDifference(uPrice, sPrice) {
