@@ -19,7 +19,7 @@ const sFactory = new web3.eth.Contract(IUniswapV2Factory.abi, config.SUSHISWAP.F
 const sRouter = new web3.eth.Contract(IUniswapV2Router02.abi, config.SUSHISWAP.V2_ROUTER_02_ADDRESS) // SUSHISWAP ROUTER CONTRACT
 
 const IArbitrage = require('../build/contracts/Arbitrage.json')
-const arbitrage = new web3.eth.Contract(IArbitrage.abi, IArbitrage.networks[1].address);
+const arbitrage = new web3.eth.Contract(IArbitrage.abi, IArbitrage.networks[137].address);
 
 module.exports = {
     uFactory,
