@@ -15,7 +15,7 @@ interface IDODO {
     function _BASE_TOKEN_() external view returns (address);
 }
 
-contract Flashloan {
+contract Arbitrage {
     IUniswapV2Router02 public immutable sRouter;
     IUniswapV2Router02 public immutable uRouter;
 
