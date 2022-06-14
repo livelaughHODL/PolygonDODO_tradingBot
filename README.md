@@ -24,18 +24,18 @@
 In your terminal run:
 
 ```
-ganache -f -m <Your-Mnemonic-Phrase> -u 0xdEAD000000000000000042069420694206942069 -p 7545
+ganache -f -m <Your-Mnemonic-Phrase> -u 0xF977814e90dA44bFA03b6295A0616a897441aceC -p 7545
 ```
 
 Alternatively you can start ganache with your own RPC URL such as the one provided from Alchemy:
 
 ```
-ganache -f wss://eth-mainnet.alchemyapi.io/v2/<Your-App-Key> -m <Your-Mnemonic-Phrase> -u 0xdEAD000000000000000042069420694206942069 -p 7545
+ganache -f wss://eth-mainnet.alchemyapi.io/v2/<Your-App-Key> -m <Your-Mnemonic-Phrase> -u 0xF977814e90dA44bFA03b6295A0616a897441aceC -p 7545
 ```
 
 For the -m parameter you can get away by using a 1 word mnemonic, remember these are only development accounts and are not to be used in production.
 
-For the -u parameter in the command, we are unlocking an address with SHIB tokens to manipulate price of SHIB/WETH in our scripts. If you 
+For the -u parameter in the command, we are unlocking an address with USDC tokens to manipulate price of USDC/WETH in our scripts. If you 
 plan to use a different ERC20 token, you'll need to unlock an account holding that specific ERC20 token.
 
 Once you've started ganache-cli, copy the address of the first account as you'll need to paste it in your .env file in the next step.
@@ -44,10 +44,10 @@ Once you've started ganache-cli, copy the address of the first account as you'll
 Before running any scripts, you'll want to create a .env file with the following values (see .env.example):
 
 - **ALCHEMY_API_KEY=""**
-- **ARB_FOR="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"** (By default we are using WETH)
-- **ARB_AGAINST="0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"** (By default we are using SHIB)
+- **ARB_FOR="0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"** (By default we are using WETH)
+- **ARB_AGAINST="0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"** (By default we are using USDC)
 - **ACCOUNT=""** (Account to recieve profit/execute arbitrage contract)
-- **PRICE_DIFFERENCE=0.50** (Difference in price between Uniswap & Sushiswap, default is 0.50%)
+- **PRICE_DIFFERENCE=0.50** (Difference in price between Quickswap & Sushiswap, default is 0.50%)
 - **UNITS=0** (Only used for price reporting)
 - **GAS_LIMIT=600000** (Currently a hardcoded value, may need to adjust during testing)
 - **GAS_PRICE=0.0093** (Currently a hardcoded value, may need to adjust during testing)
@@ -97,11 +97,11 @@ The bot is essentially composed of 5 functions.
 - *determineProfitability()*
 - *executeTrade()*
 
-The *main()* function monitors swap events from both Uniswap & Sushiswap. 
+The *main()* function monitors swap events from both Quickswap & Sushiswap. 
 
-When a swap event occurs, it calls *checkPrice()*, this function will log the current price of the assets on both Uniswap & Sushiswap, and return the **priceDifference**
+When a swap event occurs, it calls *checkPrice()*, this function will log the current price of the assets on both Quickswap & Sushiswap, and return the **priceDifference**
 
-Then *determineDirection()* is called, this will determine where we would need to buy first, then sell. This function will return an array called **routerPath** in *main()*. The array contains Uniswap & Sushiswap's router contracts. If no array is returned, this means the **priceDifference** returned earlier is not higher than **difference**
+Then *determineDirection()* is called, this will determine where we would need to buy first, then sell. This function will return an array called **routerPath** in *main()*. The array contains Quickswap & Sushiswap's router contracts. If no array is returned, this means the **priceDifference** returned earlier is not higher than **difference**
 
 If **routerPath** is not null, then we move into *determineProfitability()*. This is where we set our conditions on whether there is a potential arbitrage or not. This function returns either true or false.
 
@@ -119,14 +119,14 @@ Keep in mind, after running the scripts, specifically *manipulatePrice.js*, you 
 ### Additional Information
 The *bot.js* script uses helper functions for fetching token pair addresses, calculating price of assets, and calculating estimated returns. These functions can be found in the *helper.js* file inside of the helper folder.
 
-The helper folder also has *server.js* which is responsible for spinning up our local server, and *initialization.js* which is responsible for setting up our web3 connection, configuring Uniswap/Sushiswap contracts, etc. 
+The helper folder also has *server.js* which is responsible for spinning up our local server, and *initialization.js* which is responsible for setting up our web3 connection, configuring Quickswap/Sushiswap contracts, etc. 
 
 As you customize parts of the script it's best to refer to [Uniswap documentation](https://docs.uniswap.org/protocol/V2/introduction) for a more detail rundown on the protocol and interacting with the V2 exchange.
 
 ### Strategy Overview and Potential Errors
-The current strategy implemented is only shown as an example alongside with the *manipulatePrice.js* script. Essentially, after we manipulate price on Uniswap, we look at the reserves on Sushiswap and determine how much SHIB we need to buy on Uniswap to 'clear' out reserves on Sushiswap. Therefore the arbitrage direction is Uniswap -> Sushiswap. 
+The current strategy implemented is only shown as an example alongside with the *manipulatePrice.js* script. Essentially, after we manipulate price on Quickswap, we look at the reserves on Sushiswap and determine how much USDC we need to buy on Quickswap to 'clear' out reserves on Sushiswap. Therefore the arbitrage direction is Quickswap -> Sushiswap. 
 
-This works because Sushiswap has lower reserves than Uniswap. However, if the arbitrage direction was swapped: Sushiswap -> Uniswap, this will sometimes error out if monitoring swaps on mainnet.
+This works because Sushiswap has lower reserves than Quickswap. However, if the arbitrage direction was swapped: Sushiswap -> Quickswap, this will sometimes error out if monitoring swaps on mainnet.
 
 This error occurs in the *determineProfitability()* function inside of *bot.js*. Currently a try/catch is implemented, so if it errors out, the bot will just resume monitoring price. Other solutions to this may be to implement a different strategy, use different ERC20 tokens, or reversing the order.
 
@@ -149,9 +149,9 @@ You'll want to update the router and factory addresses inside of the *config.jso
 
 ### 3. Change RPC URL
 
-Inside of *initialization.js* and *helpers.js*, you'll want to update the Web3 provider RPC URL. Example of Polygon:
+Inside of *initialization.js* and *helpers.js*, you'll want to update the Web3 provider RPC URL. Example of Ethereum:
 ```
-web3 = new Web3(`wss://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`)
+web3 = new Web3(`wss://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`)
 ```
 
 ### 4. Changing Arbitrage.sol

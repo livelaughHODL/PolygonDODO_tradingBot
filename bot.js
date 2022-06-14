@@ -32,7 +32,7 @@ const main = async () => {
         if (!isExecuting) {
             isExecuting = true
 
-            const priceDifference = await checkPrice('Uniswap', token0, token1)
+            const priceDifference = await checkPrice('Quickswap', token0, token1)
             const routerPath = await determineDirection(priceDifference)
 
             if (!routerPath) {
@@ -105,7 +105,7 @@ const checkPrice = async (exchange, token0, token1) => {
 
     console.log(`Current Block: ${currentBlock}`)
     console.log(`-----------------------------------------`)
-    console.log(`UNISWAP   | ${token1.symbol}/${token0.symbol}\t | ${uFPrice}`)
+    console.log(`QUICKSWAP   | ${token1.symbol}/${token0.symbol}\t | ${uFPrice}`)
     console.log(`SUSHISWAP | ${token1.symbol}/${token0.symbol}\t | ${sFPrice}\n`)
     console.log(`Percentage Difference: ${priceDifference}%\n`)
 
@@ -118,7 +118,7 @@ const determineDirection = async (priceDifference) => {
     if (priceDifference >= difference) {
 
         console.log(`Potential Arbitrage Direction:\n`)
-        console.log(`Buy\t -->\t Uniswap`)
+        console.log(`Buy\t -->\t Quickswap`)
         console.log(`Sell\t -->\t Sushiswap\n`)
         return [uRouter, sRouter]
 
@@ -126,7 +126,7 @@ const determineDirection = async (priceDifference) => {
 
         console.log(`Potential Arbitrage Direction:\n`)
         console.log(`Buy\t -->\t Sushiswap`)
-        console.log(`Sell\t -->\t Uniswap\n`)
+        console.log(`Sell\t -->\t Quickswap\n`)
         return [sRouter, uRouter]
 
     } else {
@@ -144,12 +144,12 @@ const determineProfitability = async (_routerPath, _token0Contract, _token0, _to
 
     if (_routerPath[0]._address == uRouter._address) {
         reserves = await getReserves(sPair)
-        exchangeToBuy = 'Uniswap'
+        exchangeToBuy = 'Quickswap'
         exchangeToSell = 'Sushiswap'
     } else {
         reserves = await getReserves(uPair)
         exchangeToBuy = 'Sushiswap'
-        exchangeToSell = 'Uniswap'
+        exchangeToSell = 'Quickswap'
     }
 
     console.log(`Reserves on ${_routerPath[1]._address}`)
@@ -217,12 +217,12 @@ const determineProfitability = async (_routerPath, _token0Contract, _token0, _to
 const executeTrade = async (_routerPath, _token0Contract, _token1Contract) => {
     console.log(`Attempting Arbitrage...\n`)
 
-    let startOnUniswap
+    let startOnQuickswap
 
     if (_routerPath[0]._address == uRouter._address) {
-        startOnUniswap = true
+        startOnQuickswap = true
     } else {
-        startOnUniswap = false
+        startOnQuickswap = false
     }
 
     // Fetch token balance before
@@ -230,7 +230,7 @@ const executeTrade = async (_routerPath, _token0Contract, _token1Contract) => {
     const ethBalanceBefore = await web3.eth.getBalance(account)
 
     if (config.PROJECT_SETTINGS.isDeployed) {
-        await arbitrage.methods.executeTrade(startOnUniswap, _token0Contract._address, _token1Contract._address, amount).send({ from: account, gas: gas })
+        await arbitrage.methods.executeTrade(startOnQuickswap, _token0Contract._address, _token1Contract._address, amount).send({ from: account, gas: gas })
     }
 
     console.log(`Trade Complete:\n`)
